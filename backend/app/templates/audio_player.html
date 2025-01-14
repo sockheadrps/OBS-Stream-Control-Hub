@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-Channel Audio Mixer</title>
+    <link rel="stylesheet" href="/static/audio_player.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet"> <!-- Google Font -->
+</head>
+<body>
+    <div class="mixer">
+        <div class="channel">
+          <h2>Channel 1</h2>
+          <div class="control-panel">
+            <input type="range" min="0" max="1.0" value="0.5" id="volume1" step="0.05" class="slider vertical-slider">
+            <div class="effects-container">
+              <div class="buttons fade-buttons">
+                <button id="fadeIn1" class="fade-button fadein">Fade In</button>
+                <button id="fadeOut1" class="fade-button fadeout">Fade Out</button>
+              </div>
+              <label class="effects-chain-label">Effects chain</label> <!-- Label added here -->
+            </div>
+
+            <div class="buttons control-buttons">
+              <button class="auto-play buttons" id="auto-play-1">Start Channel</button>
+              <button class="fade-button play-pause" id="play-btn-1">Play</button>
+              <button class="fade-button skip" id="skip-btn-1">Skip</button>
+            </div>
+            
+            <!-- Audio Info Container -->
+            <div class="audio-data" id="audio-data-1">
+              <div class="audio-info">
+                <span class="audio-title" id="channel1-title">Title: </span>
+                <span class="audio-artist" id="channel1-artist">Artist: </span>     
+                <span class="audio-position" id="channel1-position">Position: </span>          
+              </div>
+              <span class="queue-label">Queue</span>
+              <div class="queue-contents" id="channel1-queue">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="channel">
+          <h2>Channel 2</h2>
+          <div class="control-panel">
+            <input type="range" min="0" max="1.0" value="0.5" step="0.05" id="volume2" class="slider vertical-slider">
+            <div class="effects-container">
+              <div class="buttons fade-buttons">
+                <button id="fadeIn2" class="fade-button fadein">Fade In</button>
+                <button id="fadeOut2" class="fade-button fadeout">Fade Out</button>
+              </div>
+              <label class="effects-chain-label">Effects chain</label> <!-- Label added here -->
+            </div>
+
+            <div class="buttons control-buttons">
+              <button class="auto-play buttons" id="auto-play-2">Start Channel</button> <!-- Start Channel 2 button added -->
+              <button class="fade-button play-pause" id="play-btn-2">Play</button> <!-- Added id -->
+              <button class="fade-button skip" id="skip-btn-2">Skip</button> <!-- Added id -->
+            </div>
+            
+            <div class="audio-data" id="audio-data-2"> <!-- Added id -->
+              <div class="audio-info">
+                <span class="audio-title" id="channel2-title">Title: </span>
+                <span class="audio-artist" id="channel2-artist">Artist: </span>     
+                <span class="audio-position" id="channel2-position">Position: </span>          
+              </div>
+              <span class="queue-label">Queue</span> <!-- Added queue label -->
+              <div class="queue-contents" id="channel2-queue"> <!-- Added id -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    <script src="/static/audio_player.js"></script>
+</body>
+</html>

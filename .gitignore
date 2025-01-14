@@ -1,0 +1,58 @@
+.venv/
+backend/app/data/reports/**/*
+
+# typical python ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+
+# do we typically ignore the .egg-info folder?
+*.egg-info/
+
+# ignore the .DS_Store file
+.DS_Store
+
+# svelte related ignores
+node_modules/
+svelte-kit/
+
+t copy.py
+t.py
+
+
+
+# Ignore temporary or output files
+backend/app/data/images/*
+backend/table_report.pdf
+
+# Ignore auto-generated or build files
+frontend/dist-web-components/
+frontend/package-lock.json
+frontend/vite.config.mjs
+
+# Ignore deleted vite-project files
+frontend/vite-project/
+
+# Ignore miscellaneous untracked files
+coms.txt
+fbullet.py
+
+# Node.js specific
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# General Python files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.log
+*.sqlite3

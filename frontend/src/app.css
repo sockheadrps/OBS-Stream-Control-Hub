@@ -1,0 +1,27 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+	/* global.css or tailwind.css */
+	html {
+		transition:
+			background-color 0.3s ease,
+			color 0.3s ease;
+	}
+
+	body {
+		background-color: var(--body-bg);
+		color: var(--text-color);
+	}
+
+	/* Default theme */
+	body {
+		--body-bg: #1f1f1f;
+	}
+
+	/* Dark theme */
+	body.dark {
+		--body-bg: #1f1f1f;
+	}
+}
