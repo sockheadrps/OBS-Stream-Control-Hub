@@ -2,12 +2,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, APIRouter
 from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
 import asyncio
-from rpaudio.effects import FadeIn, FadeOut, ChangeSpeed
+from rpaudio.effects import FadeIn, FadeOut
 from rpaudio import AudioChannel, AudioSink
-import json
-from .connection_manager import ConnectionManager
 import dotenv
 import os
 
