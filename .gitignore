@@ -55,4 +55,6 @@ __pycache__/
 *.so
 *.egg-info/
 *.log
-*.sqlite3
+
+TwitchBot/twitchbot/bot/config.py
+voice.mp3
