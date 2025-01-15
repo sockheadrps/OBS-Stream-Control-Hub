@@ -12,8 +12,10 @@
 	import { page } from '$app/stores';
 	import { navigating } from '$app/stores';
 	import { socketStore, initializeSocket, sendMessage } from '../stores/ws_audio_player';
+	import { twitch_bot_websocket, twitch_bot_websocketState, twitch_bot_lastMessage, initTwitchBotWebSocket } from '../stores/ws_twitch_bot';
 
 	let APsocket: WebSocket | null = null;
+	let twitch_bot_socket: WebSocket | null = null;
 	const months = [
 		'January',
 		'February',
@@ -71,6 +73,14 @@
 				APsocket = $socketStore.socket;
 			}
 
+			if (!$twitch_bot_websocket) {
+				console.log('Initializing WebSocket...');
+				initTwitchBotWebSocket();
+			} else {
+				console.log('Using existing WebSocket...');
+				twitch_bot_socket = $twitch_bot_websocket;
+			}
+			
 			return () => {
 				document.removeEventListener('mousedown', handleClickOutside);
 				if (APsocket) {

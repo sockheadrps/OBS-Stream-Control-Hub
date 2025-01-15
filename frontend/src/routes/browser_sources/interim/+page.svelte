@@ -10,12 +10,10 @@
 	const COLLISION_THRESHOLD = 30;
 	const MAX_COLLISIONS = 3;
 	const EXPLOSION_FORCE = 5;
+	const PARTICLE_LOAD_INTERVAL = 100; // ms between loading each particle
 
-	// get valuue of localControlStore every 1 second
-	
 	// Store to track whether the canvas is ready
 	const ready = writable(false);
-	// Reactive store binding
 
 	// Variables and constants
 	let canvas: HTMLCanvasElement;
@@ -24,9 +22,16 @@
 	let myImage: HTMLImageElement;
 	let imageData: ImageData;
 	let pixels: Uint8ClampedArray;
+	let particleLoadInterval: number;
+	let currentParticleCount = 0;
 
-	// Subscribe to control panel store to keep localControlStore in sync
-
+	// function to convert 0-360 to some colors
+	function colorFromHue(hue: number) {
+		if (hue === 0) {
+			return 'hsl(0, 0%, 0%)';
+		}
+		return `hsl(${hue}, 100%, 50%)`;
+	}
 
 	// Reactive declarations for settings
 	$: particleCount = $overlaySettings?.particleCount;
@@ -43,6 +48,7 @@
 	$: numberOfStars = $overlaySettings?.numberOfStars;
 	$: blackParticles = $overlaySettings?.blackParticles;
 	$: blackStars = $overlaySettings?.blackStars;
+	$: trailColor = $overlaySettings?.trailColor;
 
 	// Create image only in browser
 	if (browser) {
@@ -98,18 +104,30 @@
 		flashDuration!: number;
 		directionX!: number;
 		directionY!: number;
+		trailColor!: string;
 
 		constructor() {
-			this.initializePosition();
-			this.initializeMovement();
-			this.initializeVisuals();
-			this.initializeState();
+			// Defer initialization until canvas is ready
+			if (canvas) {
+				this.initializePosition();
+				this.initializeMovement();
+				this.initializeVisuals();
+				this.initializeState();
+			}
 		}
 
 		private initializePosition() {
-			this.x = Math.random() * canvas.width;
-			this.y = Math.random() * canvas.height;
-			this.z = 0;
+			// Only initialize if canvas exists
+			if (canvas) {
+				this.x = Math.random() * canvas.width;
+				this.y = Math.random() * canvas.height;
+				this.z = 0;
+			} else {
+				// Default values if canvas not ready
+				this.x = 0;
+				this.y = 0;
+				this.z = 0;
+			}
 		}
 
 		private initializeMovement() {
@@ -132,15 +150,16 @@
 				.fill(0)
 				.map(() => Math.random() * starSpeed * 2 - starSpeed);
 			this.baseHue = Math.random() * 60 + baseHue;
-			this.color = blackParticles ? 'black' : `hsl(${this.baseHue}, 100%, 50%)`;
-			this.starColor = blackStars ? 'black' : `hsl(${this.baseHue}, 100%, 50%)`;
+			this.color =`hsl(${this.baseHue}, 100%, 50%)`;
+			this.starColor =`hsl(${this.baseHue}, 100%, 50%)`;
+			this.trailColor = colorFromHue(trailColor);
 		}
 
 		private initializeState() {
 			this.sizeMultiplier = 1;
 			this.growthPhase = true;
 			this.trails = Array(numberOfStars)
-				.fill(0)
+				.fill(this.trailColor)
 				.map(() => []);
 			this.hasEscaped = false;
 			this.isExploding = false;
@@ -168,20 +187,41 @@
 		}
 
 		private handleCollision(other: Particle, dx: number, dy: number, distance: number) {
+			const angle = Math.atan2(dy, dx);
+			const newDirX = Math.cos(angle) * collisionForce;
+			const newDirY = Math.sin(angle) * collisionForce;
+
+			// Check if the other particle is within the shield created by the trails
+			if (this.trails.length > 0) {
+				const shieldDistance = this.size * starOffset; // Define the shield distance
+				if (distance < shieldDistance) {
+					// Bounce off the shield instead of colliding
+					this.directionX = -newDirX;
+					this.directionY = -newDirY;
+					other.directionX = newDirX;
+					other.directionY = newDirY;
+					return; // Exit to prevent further collision handling
+				}
+			}
+
+			// Handle normal collision if past the shield
 			this.isFlashing = other.isFlashing = true;
 			this.flashDuration = other.flashDuration = 10;
 
 			this.collisionCount++;
 			other.collisionCount++;
 
-			const angle = Math.atan2(dy, dx);
-			const newDirX = Math.cos(angle) * collisionForce;
-			const newDirY = Math.sin(angle) * collisionForce;
+			// Move particles away from each other if they are not destroyed
+			if (this.collisionCount < MAX_COLLISIONS && other.collisionCount < MAX_COLLISIONS) {
+				const separationDistance = COLLISION_THRESHOLD;
+				const overlap = separationDistance - distance;
 
-			this.directionX = newDirX;
-			this.directionY = newDirY;
-			other.directionX = -newDirX;
-			other.directionY = -newDirY;
+				// Move particles away from each other
+				this.x += (dx / distance) * overlap * 0.5; // Move this particle away
+				this.y += (dy / distance) * overlap * 0.5; // Move this particle away
+				other.x -= (dx / distance) * overlap * 0.5; // Move the other particle away
+				other.y -= (dy / distance) * overlap * 0.5; // Move the other particle away
+			}
 
 			if (this.collisionCount >= MAX_COLLISIONS) this.explode();
 			if (other.collisionCount >= MAX_COLLISIONS) other.explode();
@@ -203,6 +243,8 @@
 		}
 
 		update() {
+			if (!canvas) return;
+
 			if (this.isExploding) {
 				this.updateExplosion();
 				return;
@@ -247,6 +289,7 @@
 
 		private updateTrails() {
 			for (let i = 0; i < numberOfStars; i++) {
+				this.trailColor = colorFromHue(trailColor);
 				if (!this.trails[i]) {
 					this.trails[i] = [];
 				}
@@ -267,7 +310,7 @@
 					y: trailY,
 					z: this.z,
 					alpha: 0.5,
-					color: this.starColor
+					color: trailColor
 				});
 
 				if (this.trails[i].length > trailLength) {
@@ -277,6 +320,8 @@
 		}
 
 		draw() {
+			if (!ctx) return;
+
 			if (this.isExploding) {
 				this.explosionParticles.forEach((p) => p.draw(ctx));
 				return;
@@ -295,8 +340,11 @@
 						for (let j = 1; j < trail.length; j++) {
 							ctx.lineTo(trail[j].x, trail[j].y);
 						}
+						const trailStrokeColor = this.isFlashing
+							? 'rgba(255, 255, 255, 0.5)'
+							: this.trailColor
 
-						ctx.strokeStyle = this.isFlashing ? 'rgba(255, 255, 255, 0.5)' : `${this.starColor}80`;
+						ctx.strokeStyle = trailStrokeColor;
 						ctx.lineWidth = this.size * starSize;
 						ctx.stroke();
 					}
@@ -372,22 +420,37 @@
 		}
 
 		reset() {
-			this.initializePosition();
-			this.initializeMovement();
-			this.size = this.maxSize;
-			this.initializeState();
+			if (canvas) {
+				this.initializePosition();
+				this.initializeMovement();
+				this.size = this.maxSize;
+				this.initializeState();
+			}
 		}
 	}
 
 	function init() {
-		particlesArray = Array(particleCount)
-			.fill(null)
-			.map(() => new Particle());
+		particlesArray = [];
+		currentParticleCount = 0;
+		
+		// Clear any existing interval
+		if (particleLoadInterval) {
+			clearInterval(particleLoadInterval);
+		}
+
+		// Start loading particles gradually
+		particleLoadInterval = setInterval(() => {
+			if (currentParticleCount < particleCount) {
+				particlesArray.push(new Particle());
+				currentParticleCount++;
+			} else {
+				clearInterval(particleLoadInterval);
+			}
+		}, PARTICLE_LOAD_INTERVAL);
 	}
 
 	function animate() {
 		if (!ctx || !canvas || !particlesArray) return;
-		
 
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		ctx.drawImage(myImage, 0, 0, canvas.width, canvas.height);
@@ -413,7 +476,6 @@
 	}
 
 	$: {
-		
 		if (particlesArray && particlesArray.length > 0) {
 			particlesArray.forEach((particle) => {
 				if (particle) {
@@ -422,15 +484,29 @@
 					particle.starSpeeds = Array(numberOfStars)
 						.fill(0)
 						.map(() => Math.random() * starSpeed * 2 - starSpeed);
+					particle.maxSize = Math.random() * 20 + baseSize;
+					particle.size = particle.maxSize;
+					particle.baseHue = Math.random() * 60 + baseHue;
+					particle.color = blackParticles ? 'black' : `hsl(${particle.baseHue}, 100%, 50%)`;
+					particle.starColor = blackStars ? 'black' : `hsl(${particle.baseHue}, 100%, 50%)`;
 				}
 			});
 		}
 	}
 
+	$: if (particleCount !== numberOfParticles) {
+		updateParticles();
+	}
+
 	function clearParticles() {
+		if (particleLoadInterval) {
+			clearInterval(particleLoadInterval);
+		}
 		particlesArray = [];
+		currentParticleCount = 0;
 		init();
 	}
+
 	let load_ready = false;
 	onMount(() => {
 		const loadImage = () =>
@@ -459,17 +535,19 @@
 		});
 		load_ready = true;
 
-
 		return () => {
+			if (particleLoadInterval) {
+				clearInterval(particleLoadInterval);
+			}
 			particlesArray = [];
 		};
 	});
 </script>
 
 {#if load_ready}
-<div class="container">
-	<canvas bind:this={canvas}></canvas>
-</div>
+	<div class="container">
+		<canvas bind:this={canvas}></canvas>
+	</div>
 {/if}
 
 <style>

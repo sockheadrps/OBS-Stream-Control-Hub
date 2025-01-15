@@ -16,6 +16,7 @@
 		starOffset: number;
 		wanderStrength: number;
 		collisionForce: number;
+		trailColor: number;
 	}
 
 	const defaultSettings: ControlPanelSettings = {
@@ -32,7 +33,8 @@
 		starSize: 0.2,
 		starOffset: 1.02,
 		wanderStrength: 0.1,
-		collisionForce: 0.5
+		collisionForce: 0.5,
+		trailColor: 180
 	};
 
 	export let onClear: () => void = () => {};
@@ -58,9 +60,25 @@
 				min="1"
 				max="100"
 				step="1"
-				on:input={(e) => updateStore('particleCount', parseInt(e.currentTarget.value))}
+				on:change={(e) => updateStore('particleCount', parseInt(e.currentTarget.value))}
 			/>
 			<span>{compSettings.particleCount}</span>
+		</label>
+	</div>
+
+	<!-- particle speed -->
+	<div class="control-group">
+		<label>
+			Particle Speed:
+			<input
+				type="range"
+				value={compSettings.particleSpeed}
+				min="0.1"
+				max="3.0"
+				step="0.1"
+				on:change={(e) => updateStore('particleSpeed', parseFloat(e.currentTarget.value))}
+			/>
+			<span>{compSettings.particleSpeed}</span>
 		</label>
 	</div>
 
@@ -73,7 +91,7 @@
 				min="5"
 				max="30"
 				step="1"
-				on:input={(e) => {
+				on:change={(e) => {
 					updateStore('baseSize', parseInt(e.currentTarget.value));
 					onClear();
 				}}
@@ -91,7 +109,7 @@
 				min="0"
 				max="360"
 				step="1"
-				on:input={(e) => {
+				on:change={(e) => {
 					updateStore('baseHue', parseInt(e.currentTarget.value));
 					onClear();
 				}}
@@ -109,7 +127,7 @@
 				min="0"
 				max="5"
 				step="1"
-				on:input={(e) => {
+				on:change={(e) => {
 					updateStore('numberOfStars', parseInt(e.currentTarget.value));
 					onClear();
 				}}
@@ -123,7 +141,7 @@
 			<input
 				type="checkbox"
 				checked={compSettings.blackParticles}
-				on:input={(e) => {
+				on:change={(e) => {
 					updateStore('blackParticles', e.currentTarget.checked);
 					onClear();
 				}}
@@ -137,7 +155,7 @@
 			<input
 				type="checkbox"
 				checked={compSettings.blackStars}
-				on:input={(e) => {
+				on:change={(e) => {
 					updateStore('blackStars', e.currentTarget.checked);
 					onClear();
 				}}
@@ -155,9 +173,24 @@
 				min="1"
 				max="20"
 				step="1"
-				on:input={(e) => updateStore('trailLength', parseInt(e.currentTarget.value))}
+				on:change={(e) => updateStore('trailLength', parseInt(e.currentTarget.value))}
 			/>
 			<span>{compSettings.trailLength}</span>
+		</label>
+	</div>
+
+	<div class="control-group">
+		<label>
+			Trail Color:
+			<input
+				type="range"
+				value={compSettings.trailColor}
+				min="0"
+				max="360"
+				step="1"
+				on:change={(e) => updateStore('trailColor', parseInt(e.currentTarget.value))}
+			/>
+			<span>{compSettings.trailColor}</span>
 		</label>
 	</div>
 
@@ -170,7 +203,7 @@
 				min="0.01"
 				max="0.1"
 				step="0.01"
-				on:input={(e) => updateStore('rotationSpeed', parseFloat(e.currentTarget.value))}
+				on:change={(e) => updateStore('rotationSpeed', parseFloat(e.currentTarget.value))}
 			/>
 			<span>{compSettings.rotationSpeed}</span>
 		</label>
@@ -185,7 +218,7 @@
 				min="0.01"
 				max="0.1"
 				step="0.01"
-				on:input={(e) => updateStore('starSpeed', parseFloat(e.currentTarget.value))}
+				on:change={(e) => updateStore('starSpeed', parseFloat(e.currentTarget.value))}
 			/>
 			<span>{compSettings.starSpeed}</span>
 		</label>
@@ -200,7 +233,7 @@
 				min="0.1"
 				max="0.5"
 				step="0.05"
-				on:input={(e) => updateStore('starSize', parseFloat(e.currentTarget.value))}
+				on:change={(e) => updateStore('starSize', parseFloat(e.currentTarget.value))}
 			/>
 			<span>{compSettings.starSize}</span>
 		</label>
@@ -215,7 +248,7 @@
 				min="1"
 				max="2"
 				step="0.1"
-				on:input={(e) => updateStore('starOffset', parseFloat(e.currentTarget.value))}
+				on:change={(e) => updateStore('starOffset', parseFloat(e.currentTarget.value))}
 			/>
 			<span>{compSettings.starOffset}</span>
 		</label>

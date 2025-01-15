@@ -3,6 +3,7 @@
 <script lang="ts">
 	import { PUBLIC_BACKEND_URL, PUBLIC_OBS_URL } from '$env/static/public';
 	import ObsTab from '../../components/ObsTab.svelte';
+	import TwitchBotTab from '../../components/TwitchBotTab.svelte';
 	import { websocketState, connectWebSocket, sendMessage } from '../../stores/wsstore';
 	import { Card, TabItem, Tabs } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
@@ -22,7 +23,12 @@
 		{
 			name: 'Control Panel',
 			action: () => console.log('Control Panel button clicked!')
+		},
+		{
+			name: 'Twitch Bot',
+			action: () => console.log('Twitch Bot button clicked!')
 		}
+
 	];
 
 	onMount(() => {
@@ -57,6 +63,8 @@
 										<ObsTab />
 									{:else if tab.name === 'Control Panel'}
 										<ControlPanel />
+									{:else if tab.name === 'Twitch Bot'}
+										<TwitchBotTab />
 									{/if}
 								</div>
 							</TabItem>

@@ -31,6 +31,7 @@ class ConnectionManager:
             "starOffset": 1.02,
             "wanderStrength": 0.1,
             "collisionForce": 0.5,
+            "trailColor": 0
         }
 
     async def connect(self, websocket: WebSocket):

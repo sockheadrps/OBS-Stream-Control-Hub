@@ -1,6 +1,4 @@
 import { browser } from '$app/environment';
-import { get, writable, type Writable } from 'svelte/store';
-import { PUBLIC_BACKEND_URL } from '$env/static/public';
 
 
 
@@ -58,7 +56,7 @@ if (browser) {
 }
 
 
-export interface ControlPanelSettings {
+interface ControlPanelSettings {
     particleCount: number;
     particleSpeed: number;
     baseSize: number;
@@ -73,6 +71,7 @@ export interface ControlPanelSettings {
     starOffset: number;
     wanderStrength: number;
     collisionForce: number;
+    trailColor: number;
 }
 export function sendSettings(settings: ControlPanelSettings) {
     if (browser) {
